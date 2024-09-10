@@ -1,16 +1,101 @@
-<html><head><meta name="color-scheme" content="light dark"></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">const fileUrl = 'https://raw.githubusercontent.com/kokos-labs/opencdo-db/main/safe.txt';const textToCheck = 'openai.com';  // Replace this with the text you want to search for// Fetch the file contentfetch(fileUrl)
-  .then(response =&gt; {if (!response.ok) {throw new Error('Network response was not ok');}return response.text();  // Get the response text})
-  .then(data =&gt; {// Split the content into linesconst lines = data.split('\n');// Find the index of the first line that includes the textToCheck//const index = lines.findIndex(line =&gt; line.includes(textToCheck));const index = lines.includes(textToCheck)
-if (index) {console.log(`Text "${textToCheck}" found at line ${index}: "${lines[index]}"`);} else {console.log(`Text "${textToCheck}" not found in the file.`);}})
-  .catch(error =&gt; {console.error('There was a problem with the fetch operation:', error);
-  });
-  
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Formatter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+            margin-bottom: 10px;
+        }
+        button {
+            display: block;
+            margin-bottom: 20px;
+        }
+        pre {
+            white-space: pre-wrap; /* Allows wrapping */
+            background-color: #f4f4f4;
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <h1>Code Formatter</h1>
+    <textarea id="inputCode" placeholder="Paste your HTML/JavaScript code here..."></textarea>
+    <button onclick="formatCode()">Format Code</button>
+    <h2>Formatted Code</h2>
+    <pre id="outputCode"></pre>
 
-  //if(trusted){
-  //  return "&lt;img src='static/1.png' aria-hidden='true'&gt;"
-  //}
-//body {
-//  background-image: url('example_img_girl.jpg');
-//  background-repeat: no-repeat;
-//}
-</pre></body></html>
+    <script>
+        function formatJS(jsCode) {
+            const tokens = jsCode.split(/(\s*[\{\}\(\)\;\,]\s*)/);
+            let formattedCode = [];
+            let indentLevel = 0;
+            const indentSize = 4;
+            const indent = ' '.repeat(indentSize);
+
+            for (let token of tokens) {
+                let strippedToken = token.trim();
+
+                if (strippedToken === '{' || strippedToken === '(' || strippedToken === '[') {
+                    formattedCode.push(indent.repeat(indentLevel) + strippedToken);
+                    indentLevel++;
+                } else if (strippedToken === '}' || strippedToken === ')' || strippedToken === ']') {
+                    indentLevel--;
+                    formattedCode.push(indent.repeat(indentLevel) + strippedToken);
+                } else if (strippedToken === ';') {
+                    formattedCode.push(indent.repeat(indentLevel) + strippedToken);
+                } else if (strippedToken) {
+                    formattedCode.push(indent.repeat(indentLevel) + strippedToken);
+                }
+            }
+
+            return formattedCode.join('\n');
+        }
+
+        function formatHTML(htmlCode) {
+            const parts = htmlCode.split(/(<[^>]+>)/);
+            let formattedCode = [];
+            let indentLevel = 0;
+            const indentSize = 4;
+            const indent = ' '.repeat(indentSize);
+
+            for (let part of parts) {
+                if (part.startsWith('<')) {
+                    if (part.startsWith('</')) {
+                        indentLevel--;
+                    }
+                    formattedCode.push(indent.repeat(indentLevel) + part.trim());
+                    if (!part.startsWith('</') && !part.endsWith('/>')) {
+                        indentLevel++;
+                    }
+                } else {
+                    formattedCode.push(indent.repeat(indentLevel) + part.trim());
+                }
+            }
+
+            return formattedCode.join('\n');
+        }
+
+        function formatCode() {
+            const inputCode = document.getElementById('inputCode').value;
+            const scriptRegex = /<script[^>]*>([\s\S]*?)<\/script>/gi;
+            let formattedHTML = inputCode.replace(scriptRegex, (match, p1) => {
+                const formattedJS = formatJS(p1);
+                return `<script>\n${formattedJS}\n</script>`;
+            });
+
+            formattedHTML = formatHTML(formattedHTML);
+
+            document.getElementById('outputCode').textContent = formattedHTML;
+        }
+    </script>
+</body>
+</html>
