@@ -3,98 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Code Formatter</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        textarea {
-            width: 100%;
-            height: 200px;
-            margin-bottom: 10px;
-        }
-        button {
-            display: block;
-            margin-bottom: 20px;
-        }
-        pre {
-            white-space: pre-wrap; /* Allows wrapping */
-            background-color: #f4f4f4;
-            padding: 10px;
-            border: 1px solid #ddd;
-        }
-    </style>
+    <title>Prettier Example</title>
+    <script src="https://cdn.jsdelivr.net/npm/prettier@2.8.8/standalone.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prettier@2.8.8/parser-babel.js"></script>
 </head>
 <body>
-    <h1>Code Formatter</h1>
-    <textarea id="inputCode" placeholder="Paste your HTML/JavaScript code here..."></textarea>
+    <h1>Prettier Example</h1>
+    <textarea id="input" rows="10" cols="50">
+function example() {return 'hello world';}
+    </textarea>
     <button onclick="formatCode()">Format Code</button>
-    <h2>Formatted Code</h2>
-    <pre id="outputCode"></pre>
+    <pre id="output"></pre>
 
     <script>
-        function formatJS(jsCode) {
-            const tokens = jsCode.split(/(\s*[\{\}\(\)\;\,]\s*)/);
-            let formattedCode = [];
-            let indentLevel = 0;
-            const indentSize = 4;
-            const indent = ' '.repeat(indentSize);
-
-            for (let token of tokens) {
-                let strippedToken = token.trim();
-
-                if (strippedToken === '{' || strippedToken === '(' || strippedToken === '[') {
-                    formattedCode.push(indent.repeat(indentLevel) + strippedToken);
-                    indentLevel++;
-                } else if (strippedToken === '}' || strippedToken === ')' || strippedToken === ']') {
-                    indentLevel--;
-                    formattedCode.push(indent.repeat(indentLevel) + strippedToken);
-                } else if (strippedToken === ';') {
-                    formattedCode.push(indent.repeat(indentLevel) + strippedToken);
-                } else if (strippedToken) {
-                    formattedCode.push(indent.repeat(indentLevel) + strippedToken);
-                }
-            }
-
-            return formattedCode.join('\n');
-        }
-
-        function formatHTML(htmlCode) {
-            const parts = htmlCode.split(/(<[^>]+>)/);
-            let formattedCode = [];
-            let indentLevel = 0;
-            const indentSize = 4;
-            const indent = ' '.repeat(indentSize);
-
-            for (let part of parts) {
-                if (part.startsWith('<')) {
-                    if (part.startsWith('</')) {
-                        indentLevel--;
-                    }
-                    formattedCode.push(indent.repeat(indentLevel) + part.trim());
-                    if (!part.startsWith('</') && !part.endsWith('/>')) {
-                        indentLevel++;
-                    }
-                } else {
-                    formattedCode.push(indent.repeat(indentLevel) + part.trim());
-                }
-            }
-
-            return formattedCode.join('\n');
-        }
-
         function formatCode() {
-            const inputCode = document.getElementById('inputCode').value;
-            const scriptRegex = /<script[^>]*>([\s\S]*?)<\/script>/gi;
-            let formattedHTML = inputCode.replace(scriptRegex, (match, p1) => {
-                const formattedJS = formatJS(p1);
-                return `<script>\n${formattedJS}\n</script>`;
+            const code = document.getElementById('input').value;
+            const formattedCode = prettier.format(code, {
+                parser: "babel",
+                semi: false,
+                singleQuote: true,
             });
-
-            formattedHTML = formatHTML(formattedHTML);
-
-            document.getElementById('outputCode').textContent = formattedHTML;
+            document.getElementById('output').textContent = formattedCode;
         }
     </script>
 </body>
